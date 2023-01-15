@@ -1,0 +1,30 @@
+name: NodeJS build App
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+#    strategy:
+#      matrix:
+#        node-version: [16.x, 18.x]
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js 16.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
+    - run: yarn
+    - run: yarn run build
+    - name: Archive binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux-amd64
+        path: kube-resource-cleanup

@@ -1,0 +1,55 @@
+image:
+  registry: docker.io
+  repository: someblackmagic/helm-deployer
+  tag: tests-image
+  digest: ~
+  pullPolicy: Always
+  pullSecrets: []
+
+
+## Enable diagnostic mode in the deployment
+##
+diagnosticMode:
+  ## @param diagnosticMode.enabled Enable diagnostic mode (all probes will be disabled and the command will be overridden)
+  ##
+  enabled: false
+  ## @param diagnosticMode.command Command to override all containers in the deployment
+  ##
+  command:
+    - sleep
+  ## @param diagnosticMode.args Args to override all containers in the deployment
+  ##
+  args:
+    - infinity
+
+app:
+  externalSecrets: []
+  envVars:
+    BASH_SLEEP_TIME: 1
+
+
+metadata:
+  deployedBy: null-value
+  pipelineUrl: null-value
+
+
+job:
+  command: 'bash /test.sh'
+  backoffLimit: 2
+  parallelism: 1
+  ttlSecondsAfterFinished: 7200
+  completions: 1
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  requests: { }
+  #    requests:
+  #        cpu: 300m
+  #        memory: 300Mi
+  limits: {}
+  #    limits:
+  #        cpu: 200m
+  #        memory: 1000Mi

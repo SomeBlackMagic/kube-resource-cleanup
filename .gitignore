@@ -1,0 +1,7 @@
+.idea
+dist
+kube-resource-cleanup
+*.tgz
+node_modules
+.helm
+.env.*
