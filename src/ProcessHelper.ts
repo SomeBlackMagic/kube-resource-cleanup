@@ -1,22 +1,24 @@
-import {processSignalDebug} from "./Helpers";
+import {processSignalDebug} from './Helpers';
 import {spawn} from 'child_process';
 const cliColor = require('cli-color');
 
-class newChildProcessOptionsDefaultValue implements newChildProcessOptions {
-    wait: boolean = false
-    grabStdOut: boolean = false
-    pipeLogs: boolean = false
-    logPrefix: string = ''
-    logColor: string = 'white'
+export class NewChildProcessOptionsDefaultValue implements NewChildProcessOptions {
+    wait: boolean = false;
+    grabStdOut: boolean = false;
+    pipeLogs: boolean = false;
+    logPrefix: string = '';
+    logColor: string = 'white';
+    attachToResult: any = {};
 }
 
-interface newChildProcessOptions {
-    wait?: boolean
-    grabStdOut?: boolean
-    parseResult?: 'no' | 'json'
-    pipeLogs?: boolean
-    logPrefix?: string
-    logColor?: string
+export interface NewChildProcessOptions {
+    wait?: boolean;
+    grabStdOut?: boolean;
+    parseResult?: 'no' | 'json';
+    pipeLogs?: boolean;
+    logPrefix?: string;
+    logColor?: string;
+    attachToResult?: object;
 }
 
 export class ProcessHelper {
@@ -72,7 +74,7 @@ export class ProcessHelper {
 
     }
 
-    public static async createChildProcess(command: string, args: string[], options: newChildProcessOptions = new newChildProcessOptionsDefaultValue()) {
+    public static async createChildProcess(command: string, args: string[], options: NewChildProcessOptions = new NewChildProcessOptionsDefaultValue()) {
         let colorator;
         switch (options.logColor) {
             case 'blue':
@@ -128,11 +130,24 @@ export class ProcessHelper {
             }
             processSignalDebug(options.logPrefix + ':->', process);
 
-            if (options.wait === true || options.grabStdOut == true) {
+            if (options.wait === true || options.grabStdOut === true) {
                 process.on('exit', (code: number | null, signal: NodeJS.Signals | null) => {
-                    if ((code === 0 || code === 1) && (options.wait === true || options.grabStdOut == true)) {
+                    if ((code === 0 || code === 1) && (options.wait === true || options.grabStdOut === true)) {
                         if (options.parseResult === 'json') {
-                            resolve(JSON.parse(stdout));
+                            if (stdout === '') {
+                                resolve([]);
+                            } else {
+                                if (typeof options.attachToResult !== 'undefined') {
+                                    resolve(Object.assign({}, JSON.parse(stdout), options.attachToResult));
+                                } else {
+                                    try {
+                                        resolve(JSON.parse(stdout));
+                                    }
+                                    catch (e) {
+                                        reject(new Error('Can not parse output json: ' + stdout));
+                                    }
+                                }
+                            }
                         } else {
                             resolve(stdout);
                         }
