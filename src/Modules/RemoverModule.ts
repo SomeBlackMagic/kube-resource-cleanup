@@ -7,7 +7,8 @@ export class RemoverModule {
     public async run(cliArgs: string[]) {
         const gitlabProjectName: string = cliArgs[1];
         const gitlabProjectBranch: string = cliArgs[2];
-        console.log('Start search helm releases');
+        console.log('[kube-resource-cleanup] Start search helm releases');
+        console.log('[kube-resource-cleanup] Namespace: ' + ConfigFactory.getCore().KUBE_NAMESPACE);
         let realiseList: HelmListItem[] = await KubeProcessHelper.helm(
             [
                 'ls',
@@ -20,10 +21,10 @@ export class RemoverModule {
                 parseResult: 'json',
             }
         );
-        console.log('Found: ' + realiseList.length);
+        console.log('[kube-resource-cleanup] Found: ' + realiseList.length);
 
         if (realiseList.length !== 0) {
-            console.log('Get information about all items');
+            console.log('[kube-resource-cleanup] Get information about all items');
             const promiseList = realiseList.map((item) => {
                 return KubeProcessHelper.helm([
                         'get', 'values',
@@ -93,9 +94,9 @@ export class RemoverModule {
                 );
             });
             const status = await Promise.all(deletedRealisesPromiseList);
-            console.log('-----------------------------');
+            console.log('[kube-resource-cleanup] -----------------------------');
             console.log(status);
-            console.log('-----------------------------');
+            console.log('[kube-resource-cleanup] -----------------------------');
             realiseList = await KubeProcessHelper.helm(
                 [
                     'ls',
@@ -115,9 +116,9 @@ export class RemoverModule {
             const result = await KubeProcessHelper.kubectl([
                 'delete', 'namespace', ConfigFactory.getCore().KUBE_NAMESPACE
             ], {wait: true, grabStdOut: true});
-            console.log('delete namespace status: ' + JSON.stringify(result));
+            console.log('[kube-resource-cleanup] delete namespace status: ' + JSON.stringify(result));
         } else {
-            console.log('After cleaning in namespace exist other releases');
+            console.log('[kube-resource-cleanup] After cleaning in namespace exist other releases');
         }
     }
 
