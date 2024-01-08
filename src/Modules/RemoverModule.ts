@@ -42,9 +42,26 @@ export class RemoverModule {
                 );
             });
             const realisesList = await Promise.all(promiseList);
-
+            if (ConfigFactory.getCore().KUBE_CLEANER_FORCE_CLEAN_ALL === true) {
+                console.log('[kube-resource-cleanup] KUBE_CLEANER_FORCE_CLEAN_ALL - true');
+                console.log('[kube-resource-cleanup] Remove all helm releases');
+            }
             const deletedRealisesPromiseList = realisesList.map((item) => {
                 return new Promise<any>((resolve, reject) => {
+                        if (ConfigFactory.getCore().KUBE_CLEANER_FORCE_CLEAN_ALL === true) {
+                            KubeProcessHelper.helm(
+                                [
+                                    'uninstall',
+                                    '--namespace', ConfigFactory.getCore().KUBE_NAMESPACE,
+                                    item.helmReleaseName
+                                ],
+                                {
+                                    grabStdOut: true,
+                                }
+                            ).then((data) => {
+                                resolve({helmReleaseName: item.helmReleaseName, status: true, reason: data});
+                            });
+                        }
                         if (typeof item === 'object') {
                             const releaseGitlabProjectName = item?.metadata?.gitlabProjectName;
                             const releaseGitlabProjectBranch = item?.metadata?.gitlabProjectBranch;

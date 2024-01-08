@@ -18,6 +18,7 @@ export class ConfigFactory {
             KUBECTL_CMD_ARGS: env('KUBECTL_CMD_ARGS', ''),
             KUBE_NAMESPACE:  env('KUBE_NAMESPACE', 'default'),
             KUBE_CLEANER_DEBUG: envBoolean('KUBE_CLEANER_DEBUG', false),
+            KUBE_CLEANER_FORCE_CLEAN_ALL: envBoolean('KUBE_CLEANER_FORCE_CLEAN_ALL', false),
         };
     }
 }
@@ -35,4 +36,5 @@ interface CoreConfigInterface {
     KUBECTL_CMD_ARGS: string;
     KUBE_NAMESPACE: string;
     KUBE_CLEANER_DEBUG: boolean;
+    KUBE_CLEANER_FORCE_CLEAN_ALL: boolean;
 }
